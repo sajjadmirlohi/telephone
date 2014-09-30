@@ -16,7 +16,7 @@ public:
 private:
 	Context *context;
 	UdpSocket *socket;
-	Apipa apipa;
+	Apipa *pApipa;
 	QList<Agent*> agentsList;
 public:
 	void CreateHostAgent();

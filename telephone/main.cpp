@@ -13,5 +13,7 @@ int main(int argc, char *argv[])
 	a.connect(&muxThread, &QThread::finished, mux, &QObject::deleteLater);
 	a.connect(&a, &QCoreApplication::aboutToQuit, &muxThread, &QThread::quit);
 	muxThread.start(QThread::TimeCriticalPriority);
+	Sleep(1000);
+	muxThread.quit();
 	return a.exec();
 }

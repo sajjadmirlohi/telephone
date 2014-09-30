@@ -16,9 +16,12 @@ class Apipa :
 public:
 	Apipa(QObject *parent = 0);
 	~Apipa();
+	void init();
 	QHostAddress getLocalAddress();
 	QHostAddress getNewAddress();
+	void cleanUP();
 	u_short getNewPort();
+	void resetInterface();
 private:
 	QHash<quint32, quint32> addressPool;
 	QHash<quint32, quint32> badAddressPool;

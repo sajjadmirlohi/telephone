@@ -15,6 +15,8 @@ class NetStatus :
 public:
 	NetStatus(QObject *parent = 0);
 	~NetStatus();
+	static QString interfaceName;
+	static void resetInterface();
 	static DWORD NetStatus::InitializeInterfaceToolsEx(const char * reservedAddress, const char * maskAddress);
 	static DWORD WhoHasTheInternet(const char * testAddrString);
 	static ADDR_INFO_LIST* GetListeningTCPList(DWORD pid);

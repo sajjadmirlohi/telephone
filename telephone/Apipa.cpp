@@ -4,11 +4,23 @@
 Apipa::Apipa(QObject *parent) :
 QObject(parent)
 {
+}
+
+
+Apipa::~Apipa()
+{
+	cleanUP();
+}
+
+void Apipa::resetInterface()
+{
+	NetStatus::resetInterface();
+}
+
+void Apipa::init()
+{
 	mask = QString("255.255.255.0");
-	if (NO_ERROR != NetStatus::WhoHasTheInternet("4.2.2.4"))
-	{
-		NetStatus::WhoHasTheInternet("8.8.8.8");
-	}
+	NetStatus::WhoHasTheInternet("4.2.2.4");
 	QHostAddress haRes = getLocalAddress();
 	QString res = haRes.toString();
 	QStringList s = res.split('.');
@@ -17,24 +29,24 @@ QObject(parent)
 		if (o3 > 254) {
 			o3 -= 3;
 		}
-		reserved = QString("192.168.%1.2").arg(QString(o3));
-		firstAddress = QHostAddress(QString("192.168.%1.3").arg(QString(o3))).toIPv4Address();
-		lastAddress = QHostAddress(QString("192.168.%1.254").arg(QString(o3))).toIPv4Address();
+		QString strO3 = QString::number(o3);
+		reserved = QString("192.168.%1.2").arg(strO3);
+		firstAddress = QHostAddress(QString("192.168.%1.3").arg(strO3)).toIPv4Address();
+		lastAddress = QHostAddress(QString("192.168.%1.254").arg(strO3)).toIPv4Address();
 	}
 	else {
-		reserved = QString("192.168.10.2");
-		firstAddress = QHostAddress(QString("192.168.10.3")).toIPv4Address();
-		lastAddress = QHostAddress(QString("192.168.10.254")).toIPv4Address();
+		reserved = QString("192.168.1.2");
+		firstAddress = QHostAddress(QString("192.168.1.3")).toIPv4Address();
+		lastAddress = QHostAddress(QString("192.168.1.254")).toIPv4Address();
 	}
 	firstPort = 62000;
 	lastPort = 63000;
-	NetStatus::InitializeInterfaceToolsEx(reserved.toStdString().c_str(), mask.toStdString().c_str());
 	nextAddress = firstAddress;
 	nextPort = firstPort;
+	NetStatus::InitializeInterfaceToolsEx(reserved.toStdString().c_str(), mask.toStdString().c_str());
 }
 
-
-Apipa::~Apipa()
+void Apipa::cleanUP()
 {
 	NetStatus::CleanUPInterfaceTools();
 }

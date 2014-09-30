@@ -4,17 +4,14 @@
 Multiplexer::Multiplexer(AgentKind kind, QObject *parent) :
 QObject(parent)
 {
-	switch (kind)
-	{
-	case AgentKind::HostAgent:
-		context = new Context(AgentKind::HostAgent);
-		break;
-	case AgentKind::ClientAgent:
-		context = new Context(AgentKind::ClientAgent);
-		break;
-	}
+	context = new Context(kind);
 	connect(context, SIGNAL(NewDataFromAgent(int)), this, SLOT(readyReadFromAgent(int)));
-	PEER_INFO peer_info = { apipa.getNewAddress(), apipa.getNewPort() };
+
+	pApipa = new Apipa();
+	pApipa->init();
+
+	PEER_INFO peer_info = { pApipa->getLocalAddress(), TUNNEL_PORT };
+
 	socket = new UdpSocket(NULL, NULL, &peer_info, this);
 	connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 }
@@ -22,6 +19,8 @@ QObject(parent)
 
 Multiplexer::~Multiplexer()
 {
+	delete pApipa;
+	socket->close();
 	delete socket;
 	delete context;
 }

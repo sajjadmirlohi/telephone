@@ -1,5 +1,6 @@
 #include "NetStatus.h"
 
+QString NetStatus::interfaceName;
 
 NetStatus::NetStatus(QObject *parent) :
 QObject(parent)
@@ -11,10 +12,25 @@ NetStatus::~NetStatus()
 {
 }
 
+void NetStatus::resetInterface()
+{
+	QString script = QString(
+		"netsh interface set interface name = \"%1\" admin = disabled"
+		" & "
+		"netsh interface set interface name = \"%1\" admin = enabled").arg(interfaceName);
+	system(script.toStdString().c_str());
+}
+
 QHostAddress NetStatus::getInternetConnectedInterfaceAddress()
 {
 	QNetworkInterface x = QNetworkInterface::interfaceFromIndex(InterfaceUtils::INTERNET_IFACE_INDEX);
-	return x.allAddresses()[0];
+	interfaceName = x.humanReadableName();
+	foreach(QNetworkAddressEntry qnae, x.addressEntries())
+	{
+		if (qnae.ip().isLoopback() || !qnae.ip().toIPv4Address()) continue;
+		return qnae.ip();
+	}
+	return QHostAddress::Null;
 }
 
 ADDR_INFO_LIST* NetStatus::GetListeningTCPList(DWORD pid) {
