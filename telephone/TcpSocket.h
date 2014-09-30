@@ -6,19 +6,20 @@
 #include "Context.h"
 
 class TcpSocket :
-	public QObject
+	public QTcpSocket
 {
 	Q_OBJECT
 public:
-	TcpSocket(QTcpSocket*, Context*, QObject * parent = 0);
+	TcpSocket(qintptr, Context*, PNET_HEADER _pSample, PPEER_INFO peer_info, QObject * parent = 0);
 	~TcpSocket();
 private:
-	QTcpSocket *socket;
 	Context *context;
+	PNET_HEADER pSample;
+	qintptr descriptor;
 public slots:
 	void connected();
 	void disconnected();
-	void readyRead();
 	void send(QByteArray&);
+	void socketReadyRead();
 };
 

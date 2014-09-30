@@ -9,7 +9,7 @@ class UdpSocket :
 {
 	Q_OBJECT
 public:
-	UdpSocket(Context *c, PNET_HEADER _pSample, QHostAddress address, quint16 port, QObject *parent = 0);
+	UdpSocket(Context *c, PNET_HEADER _pSample, PPEER_INFO peer_info, QObject *parent = 0);
 	~UdpSocket();
 private:
 	Context *context;

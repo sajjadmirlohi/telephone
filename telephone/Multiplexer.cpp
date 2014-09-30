@@ -14,7 +14,8 @@ QObject(parent)
 		break;
 	}
 	connect(context, SIGNAL(NewDataFromAgent(int)), this, SLOT(readyReadFromAgent(int)));
-	socket = new UdpSocket(NULL, NULL, apipa.getNewAddress(), apipa.getNewPort(), this);
+	PEER_INFO peer_info = { apipa.getNewAddress(), apipa.getNewPort() };
+	socket = new UdpSocket(NULL, NULL, &peer_info, this);
 	connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
 }
 

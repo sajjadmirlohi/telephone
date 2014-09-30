@@ -1,13 +1,14 @@
 #include "TcpServer.h"
 
 
-TcpServer::TcpServer(Context *c, QHostAddress &addr, int port, QObject *parent) :
-	QObject(parent)
+TcpServer::TcpServer(Context *c, PNET_HEADER _pSample, PPEER_INFO peer_info, QObject *parent) :
+	QTcpServer(parent)
 {
+	pSample = _pSample;
 	context = c;
-	server.setMaxPendingConnections(1);
-	connect(&server, SIGNAL(newConnection()), this, SLOT(newConnection()));
-	server.listen(addr, port);
+	this->setMaxPendingConnections(1);
+	connect(this, SIGNAL(newConnection()), this, SLOT(peerNewConnection()));
+	this->listen(peer_info->address, peer_info->port);
 }
 
 
@@ -15,9 +16,9 @@ TcpServer::~TcpServer()
 {
 }
 
-void TcpServer::newConnection()
+void TcpServer::peerNewConnection()
 {
-	TcpSocket *socket = new TcpSocket(server.nextPendingConnection(), context, this);
+	TcpSocket *socket = new TcpSocket(this->nextPendingConnection()->socketDescriptor(), context, pSample, NULL, this);
 }
 
 void TcpServer::BroadcastToClients(QByteArray &msg)

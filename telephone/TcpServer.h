@@ -7,18 +7,18 @@
 #include "Context.h"
 
 class TcpServer :
-	public QObject
+	public QTcpServer
 {
 	Q_OBJECT
 public:
-	TcpServer(Context*, QHostAddress&, int, QObject * parent = 0);
+	TcpServer(Context*, PNET_HEADER _pSample, PPEER_INFO peer_info, QObject * parent = 0);
 	~TcpServer();
 	void BroadcastToClients(QByteArray&);
 private:
 	Context *context;
-	QTcpServer server;
+	PNET_HEADER pSample;
 public slots:
-	void newConnection();
+	void peerNewConnection();
 signals:
 		void send(QByteArray&);
 };

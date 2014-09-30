@@ -1,12 +1,12 @@
 #include "UdpSocket.h"
 
 
-UdpSocket::UdpSocket(Context *c, PNET_HEADER _pSample, QHostAddress address, quint16 port, QObject *parent) :
+UdpSocket::UdpSocket(Context *c, PNET_HEADER _pSample, PPEER_INFO peer_info, QObject *parent) :
 QUdpSocket(parent)
 {
 	context = c;
 	pSample = _pSample;
-	this->bind(address, port);
+	this->bind(peer_info->address, peer_info->port);
 	if (context != NULL)
 	{
 		connect(this, SIGNAL(readyRead()), this, SLOT(socketReadyRead()));

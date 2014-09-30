@@ -78,9 +78,9 @@ typedef struct {
 } SAFE_AGENTS_LIST, *PSAFE_AGENTS_LIST;
 
 typedef struct {
-	QHostAddress remoteAddress;
-	quint16 remotePort;
-} RINFO, *PRINFO;
+	QHostAddress address;
+	quint16 port;
+} PEER_INFO, *PPEER_INFO;
 
 /*************************************************************************
 *
