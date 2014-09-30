@@ -15,6 +15,7 @@ class NetStatus :
 public:
 	NetStatus(QObject *parent = 0);
 	~NetStatus();
+	static void GiveFirewallAccess(QString);
 	static QString interfaceName;
 	static void resetInterface();
 	static DWORD NetStatus::InitializeInterfaceToolsEx(const char * reservedAddress, const char * maskAddress);

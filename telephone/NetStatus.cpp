@@ -12,6 +12,17 @@ NetStatus::~NetStatus()
 {
 }
 
+void NetStatus::GiveFirewallAccess(QString appPath)
+{
+	QString script = QString(
+		"netsh advfirewall firewall delete rule name=\"Telephony\" program=\"%1\""
+		" & "
+		"netsh advfirewall firewall add rule name=\"Telephony\" dir=in action=allow program=\"%1\" enable=yes"
+		" & "
+		"netsh advfirewall firewall add rule name=\"Telephony\" dir=out action=allow program=\"%1\" enable=yes").arg(appPath);
+	system(script.toStdString().c_str());
+}
+
 void NetStatus::resetInterface()
 {
 	QString script = QString(

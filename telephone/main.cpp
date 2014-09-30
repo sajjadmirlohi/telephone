@@ -3,10 +3,13 @@
 #include "Multiplexer.h"
 #include "qthread.h"
 #include "Types.h"
+#include "NetStatus.h"
 
 int main(int argc, char *argv[])
 {
 	QCoreApplication a(argc, argv);
+	NetStatus::GiveFirewallAccess(QCoreApplication::applicationFilePath().replace('/','\\'));
+	//qDebug() << QCoreApplication::applicationFilePath().replace('/','\\');
 	QThread muxThread;
 	Multiplexer *mux = new Multiplexer(AgentKind::ClientAgent, 0);
 	mux->moveToThread(&muxThread);
