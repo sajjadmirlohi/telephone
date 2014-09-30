@@ -16,9 +16,9 @@ public:
 public:
 	void AddHostAgent();
 	void MUXEnqueue(int agentID, PNET_MSG);
-	int MUXDequeue(int agentID, PNET_MSG*);
+	bool MUXDequeue(int agentID, PNET_MSG*);
 	void AGENTEnqueue(int agentID, PNET_MSG);
-	int AGENTDequeue(int agentID, PNET_MSG*);
+	bool AGENTDequeue(int agentID, PNET_MSG*);
 signals:
 	void NewDataFromAgent(int fromAgentID);
 	void NewDataFromMutex(int toAgentID);

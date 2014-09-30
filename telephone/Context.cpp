@@ -43,7 +43,7 @@ void Context::MUXEnqueue(int agentID, PNET_MSG pNetMsg)
 
 	pHostAgents->AgentsList.at(agentID)->ToM.enqueue(pNetMsg);
 }
-int Context::MUXDequeue(int agentID, PNET_MSG *pNetMsg)
+bool Context::MUXDequeue(int agentID, PNET_MSG *pNetMsg)
 {
 	if (agentKind == AgentKind::ClientAgent)
 	{
@@ -52,7 +52,7 @@ int Context::MUXDequeue(int agentID, PNET_MSG *pNetMsg)
 	}
 
 	*pNetMsg = pHostAgents->AgentsList.at(agentID)->ToM.dequeue();
-	return pHostAgents->AgentsList.at(agentID)->ToM.size();
+	return !(pHostAgents->AgentsList.at(agentID)->ToM.isEmpty());
 
 }
 void Context::AGENTEnqueue(int agentID, PNET_MSG pNetMsg)
@@ -65,7 +65,7 @@ void Context::AGENTEnqueue(int agentID, PNET_MSG pNetMsg)
 
 	pHostAgents->AgentsList.at(agentID)->ToA.enqueue(pNetMsg);
 }
-int Context::AGENTDequeue(int agentID, PNET_MSG *pNetMsg)
+bool Context::AGENTDequeue(int agentID, PNET_MSG *pNetMsg)
 {
 	if (agentKind == AgentKind::ClientAgent)
 	{
@@ -74,5 +74,5 @@ int Context::AGENTDequeue(int agentID, PNET_MSG *pNetMsg)
 	}
 
 	*pNetMsg = pHostAgents->AgentsList.at(agentID)->ToA.dequeue();
-	return pHostAgents->AgentsList.at(agentID)->ToA.size();
+	return !(pHostAgents->AgentsList.at(agentID)->ToA.isEmpty());
 }
