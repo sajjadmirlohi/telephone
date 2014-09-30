@@ -4,6 +4,7 @@
 #include "qlinkedlist.h"
 #include "qlist.h"
 #include "qqueue.h"
+#include "qhostaddress.h"
 
 /*************************************************************************
 *
@@ -11,10 +12,32 @@
 *
 *************************************************************************/
 
+enum MessageType {
+	PORT_INFO,
+	REG_2,
+	REG_1,
+	FORWARD,
+	MRESERVED_1,
+	PEER_REG,
+	MRESERVED_2,
+	MRESERVED_3
+};
+
+enum Protocol {
+	NONE,
+	TCP,
+	UDP,
+	PRESERVED_1,
+	PRESERVED_2,
+	PRESERVED_3,
+	PRESERVED_4,
+	PRESERVED_5
+};
+
 enum AgentKind {
 	HostAgent,
 	ClientAgent
-};
+};// AgentType;
 
 typedef struct {
 	unsigned long long mask;
@@ -33,25 +56,31 @@ typedef struct {
 } NET_HEADER, *PNET_HEADER;
 
 typedef struct {
-	PNET_HEADER pHeader;
-	const char * csMsg;
+	NET_HEADER header;
+	QByteArray msg;
 } NET_MSG, *PNET_MSG;
 
 typedef QQueue<PNET_MSG> TAGENT_QUEUE;
+typedef QQueue<PNET_MSG> TMUX_QUEUE;
 
 typedef struct {
 	QMutex pLockToA;
-	QMutex pLockToM;
 	TAGENT_QUEUE ToA;
-	TAGENT_QUEUE ToM;
 } AGENT_QUEUE_LIST, *PAGENT_QUEUE_LIST;
 
 typedef QList<PAGENT_QUEUE_LIST> TAGENT_QUEUES_LIST;
 
 typedef struct {
 	QMutex pLockAgentsList;
+	QMutex pLockToM;
 	TAGENT_QUEUES_LIST AgentsList;
+	TMUX_QUEUE ToM;
 } SAFE_AGENTS_LIST, *PSAFE_AGENTS_LIST;
+
+typedef struct {
+	QHostAddress remoteAddress;
+	quint16 remotePort;
+} RINFO, *PRINFO;
 
 /*************************************************************************
 *
@@ -59,7 +88,7 @@ typedef struct {
 *
 *************************************************************************/
 
-inline void CNVuLL2uStr(char str[8], unsigned long long z) {
+inline void CNVuLL2Str(char str[8], unsigned long long z) {
 	//instead of static_cast<char> can use - 128
 	str[0] = static_cast<char>(z & 0xff);
 	for (register unsigned int i = 1; i < 8; i++) {
@@ -68,7 +97,7 @@ inline void CNVuLL2uStr(char str[8], unsigned long long z) {
 		str[i] = static_cast<char>(z & 0xff);
 	}
 }
-inline void CNVuStr2uLL(const char str[8], unsigned long long &c) {
+inline void CNVStr2uLL(const char str[8], unsigned long long &c) {
 	c = 0;
 	for (register unsigned int i = 0; i < 8; i++) {
 		//instead of static_cast<unsigned char> can use + 128
@@ -94,4 +123,35 @@ inline void CNVuLL2Header(unsigned long long c, PNET_HEADER header) {
 		c = (c >> op[i].shift);
 		*(unsigned int *)((char *)(header)+(7 - i) * sizeof(unsigned int)) = static_cast<unsigned int>(c & op[i].mask);
 	}
+}
+
+inline void CPYHeader(PNET_HEADER destHeader, PNET_HEADER srcHeader)
+{
+	for (register unsigned int i = 0; i < 8; i++) {
+		*(unsigned int *)((char *)(destHeader)+(i) * sizeof(unsigned int)) = *(unsigned int *)((char *)(srcHeader)+(i) * sizeof(unsigned int));
+	}
+}
+
+inline PNET_MSG UNPACK(QByteArray &datagram)
+{
+	quint64 c;
+	PNET_HEADER pHeader = new NET_HEADER();
+	PNET_MSG pMsg = new NET_MSG();
+	QByteArray header = datagram.left(8);
+	QByteArray msg = datagram.right(datagram.size() - 8);
+	CNVStr2uLL(header.data(), c);
+	CNVuLL2Header(c, pHeader);
+	pMsg->msg = msg;
+	memcpy(&pMsg->header, pHeader, sizeof(NET_HEADER));
+	delete pHeader;
+	return pMsg;
+}
+
+inline QByteArray& PACK(PNET_MSG pMsg)
+{
+	quint64 c;
+	char str[8] = { 0 };
+	CNVHeader2uLL(c, &pMsg->header);
+	CNVuLL2Str(str, c);
+	return (QByteArray(str, 8) += pMsg->msg);
 }

@@ -11,17 +11,15 @@ public:
 	Context(AgentKind, QObject *parent = 0);
 	~Context();
 public:
-	PSAFE_AGENTS_LIST pHostAgents = NULL;
-	PAGENT_QUEUE_LIST pClientAgent = NULL;
+	PSAFE_AGENTS_LIST pAgents = NULL;
 public:
 	void AddHostAgent();
-	void MUXEnqueue(int agentID, PNET_MSG);
-	bool MUXDequeue(int agentID, PNET_MSG*);
-	void AGENTEnqueue(int agentID, PNET_MSG);
-	bool AGENTDequeue(int agentID, PNET_MSG*);
+	void MUXEnqueue(PNET_MSG);
+	bool MUXDequeue(PNET_MSG*);
+	void AGENTEnqueue(PNET_MSG, int agentID = 0);
+	bool AGENTDequeue(PNET_MSG*, int agentID = 0);
 signals:
 	void NewDataFromAgent(int fromAgentID);
-	void NewDataFromMutex(int toAgentID);
 private:
 	AgentKind agentKind;
 	void CreateOneClientAgent();

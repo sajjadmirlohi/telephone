@@ -17,7 +17,9 @@ private:
 	void BindUDPSocket(int port);
 	void ConnectToServer(int port);
 	void CreateServer(int port);
+signals:
+	void NewDataFromMutex();
 public slots:
-	void readyRead(int);
+	void readyRead();
 };
 

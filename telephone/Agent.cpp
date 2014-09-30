@@ -6,8 +6,7 @@ Agent::Agent(Context *c, int id, QObject *parent) :
 {
 	context = c;
 	iAgentID = id;
-	connect(context, SIGNAL(NewDataFromMutex(int)), this, SLOT(readyRead(int)));
-	//emit c->NewDataFromAgent(2);
+	connect(this, SIGNAL(NewDataFromMutex(int)), this, SLOT(readyRead(int)));
 }
 
 
@@ -28,10 +27,6 @@ void Agent::CreateServer(int port)
 	//TcpServer *s = new TcpServer();
 }
 
-void Agent::readyRead(int forAgentID)
+void Agent::readyRead()
 {
-	if (forAgentID != iAgentID)
-	{
-		return;
-	}
 }
