@@ -29,9 +29,14 @@ QObject(parent)
 	{
 		host = NULL;
 	}
-	connect(&portFinderTimer, SIGNAL(timeout()), this, SLOT(findPorts()));
 	portFinderTimer.setSingleShot(false);
-	//to-do: move timer to a new thread
+	portFinderTimer.setInterval(10000);
+	portFinderTimer.moveToThread(&timersThread);
+	connect(&portFinderTimer, SIGNAL(timeout()), this, SLOT(findPorts()));
+	connect(&timersThread, &QThread::finished, &portFinderTimer, &QObject::deleteLater);
+	//connect(&timersThread, SIGNAL(started), &portFinderTimer, SLOT(start()));
+	//connect(&timersThread, &QThread::started, &portFinderTimer, static_cast<void (QTimer::*)()>(&QTimer::start));
+	timersThread.start();
 	//to-do: start the timer when connected to host (client side), or when host is up (server side)
 	//portFinderTimer.start(10000);
 }
@@ -39,7 +44,7 @@ QObject(parent)
 
 Multiplexer::~Multiplexer()
 {
-	portFinderTimer.stop();
+	timersThread.quit();
 	delete pApipa;
 	socket->close();
 	delete socket;
