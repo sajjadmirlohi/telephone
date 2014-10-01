@@ -18,6 +18,9 @@ private:
 	UdpSocket *socket;
 	Apipa *pApipa;
 	QList<Agent*> agentsList;
+	QList<PPEER_INFO> clients;
+	PPEER_INFO host;
+	quint32 secret;
 public:
 	void CreateHostAgent();
 	void CreateClientAgent();

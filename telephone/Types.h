@@ -12,6 +12,8 @@
 *
 *************************************************************************/
 
+#define ADDRESS_POOL_MAX 32
+#define PORT_POOL_MAX 64
 #define TUNNEL_PORT 7778
 
 enum MessageType {

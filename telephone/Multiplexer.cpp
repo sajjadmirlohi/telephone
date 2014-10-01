@@ -14,6 +14,19 @@ QObject(parent)
 
 	socket = new UdpSocket(NULL, NULL, &peer_info, this);
 	connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
+
+	if (kind == AgentKind::HostAgent)
+	{
+		for (quint8 i = 0; i < ADDRESS_POOL_MAX; i++)
+		{
+			clients.append(NULL);
+		}
+	}
+	else
+	{
+		host = NULL;
+	}
+
 }
 
 
@@ -40,6 +53,7 @@ void Multiplexer::readyReadFromAgent(int forAgentID)
 {
 	PNET_MSG pNetMsg;
 	context->MUXDequeue(&pNetMsg);
+	//socket->writeDatagram(PACK(pNetMsg), addr, port);
 }
 
 void Multiplexer::readyRead()
@@ -56,6 +70,25 @@ void Multiplexer::readyRead()
 		socket->readDatagram(datagram.data(), datagram.size(), &senderAddress, &senderPort);
 
 		PNET_MSG pMsg = UNPACK(datagram);
+		if (pMsg->header.uiMessageType == MessageType::REG_2)
+		{
+			//process client registration_2
+			quint32 agentID = pMsg->header.uiAgentID;
+			if (agentID < 0 || agentID >= ADDRESS_POOL_MAX)
+			{
+				continue;
+			}
+			if (pMsg->header.uiSecret != secret)
+			{
+				continue;
+			}
+			if (clients[agentID] == NULL)
+			{
+				PPEER_INFO peer_info = new PEER_INFO();
+				clients[agentID] = peer_info;
+			}
+			continue;
+		}
 		context->AGENTEnqueue(pMsg, pMsg->header.uiAgentID);
 		//enqueue as many as possible for the agent then emit
 		if (agentID != -1)
