@@ -16,6 +16,13 @@
 #define PORT_POOL_MAX 64
 #define TUNNEL_PORT 7778
 
+typedef struct {
+	QHostAddress localAddress;
+	quint16 localPort;
+} LOCAL_ADDR_INFO, *PLOCAL_ADDR_INFO;
+
+typedef QList<PLOCAL_ADDR_INFO> ADDR_INFO_LIST;
+
 enum MessageType {
 	PORT_INFO,
 	REG_2,

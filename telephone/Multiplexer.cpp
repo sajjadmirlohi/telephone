@@ -4,7 +4,9 @@
 Multiplexer::Multiplexer(AgentKind kind, QObject *parent) :
 QObject(parent)
 {
+	agentKind = kind;
 	context = new Context(kind);
+	pid = -1;
 	connect(context, SIGNAL(NewDataFromAgent(int)), this, SLOT(readyReadFromAgent(int)));
 
 	pApipa = new Apipa();
@@ -27,12 +29,17 @@ QObject(parent)
 	{
 		host = NULL;
 	}
-
+	connect(&portFinderTimer, SIGNAL(timeout()), this, SLOT(findPorts()));
+	portFinderTimer.setSingleShot(false);
+	//to-do: move timer to a new thread
+	//to-do: start the timer when connected to host (client side), or when host is up (server side)
+	//portFinderTimer.start(10000);
 }
 
 
 Multiplexer::~Multiplexer()
 {
+	portFinderTimer.stop();
 	delete pApipa;
 	socket->close();
 	delete socket;
@@ -106,4 +113,78 @@ void Multiplexer::readyRead()
 		}
 	}
 	emit agentsList[agentID]->NewDataFromMutex();
+}
+
+void Multiplexer::findPorts()
+{
+	if (pid == -1)
+	{
+		if ((pid = NetStatus::GetProcessPIDByName(exeName)) == -1)
+		{
+			return;
+		}
+	}
+	ADDR_INFO_LIST *udpAddrList = NetStatus::GetBoundedUDPList(pid);
+	ADDR_INFO_LIST *tcpAddrList = NetStatus::GetListeningTCPList(pid);
+
+	bool newPorts = false;
+	if (udpAddrList != NULL)
+	{
+		foreach(PLOCAL_ADDR_INFO pla, *udpAddrList)
+		{
+			if (!udpPortsListLookup.contains(pla->localPort))
+			{
+				udpPortsListLookup.insert(pla->localPort, pla->localPort);
+				udpPortsList.append(QString::number(pla->localPort));
+				newPorts = true;
+			}
+		}
+		if (newPorts)
+		{
+			QByteArray _ports = udpPortsList.join(':').toLatin1();
+			if (agentKind == AgentKind::HostAgent)
+			{
+				foreach(PPEER_INFO peer_info, clients)
+				{
+					if (peer_info == NULL)
+						continue;
+					socket->writeDatagram(_ports, peer_info->address, peer_info->port);
+				}
+			}
+			else
+			{
+				socket->writeDatagram(_ports, host->address, host->port);
+			}
+		}
+	}
+	newPorts = false;
+	if (tcpAddrList != NULL)
+	{
+		foreach(PLOCAL_ADDR_INFO pla, *tcpAddrList)
+		{
+			if (!tcpPortsListLookup.contains(pla->localPort))
+			{
+				tcpPortsListLookup.insert(pla->localPort, pla->localPort);
+				tcpPortsList.append(QString::number(pla->localPort));
+				newPorts = true;
+			}
+		}
+	}
+	if (newPorts)
+	{
+		QByteArray _ports = tcpPortsList.join(':').toLatin1();
+		if (agentKind == AgentKind::HostAgent)
+		{
+			foreach(PPEER_INFO peer_info, clients)
+			{
+				if (peer_info == NULL)
+					continue;
+				socket->writeDatagram(_ports, peer_info->address, peer_info->port);
+			}
+		}
+		else
+		{
+			socket->writeDatagram(_ports, host->address, host->port);
+		}
+	}
 }

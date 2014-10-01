@@ -22,11 +22,9 @@ private:
 	void ProcessMsgFromMutex(PNET_MSG);
 	QHostAddress localAddress;
 	QHostAddress bindAddress;
-	QHash<quint16, quint16> udpPortsList;
+
 	QHash<quint16, UdpSocket*> udpSocketsList;
-	QHash<quint16, quint16> tcpServerPortsList;
 	QHash<quint16, TcpServer*> tcpServersList;
-	QHash<quint16, quint16> tcpPortsList;
 	QHash<quint16, TcpSocket*> tcpSocketsList;
 signals:
 	void NewDataFromMutex();

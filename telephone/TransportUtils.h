@@ -1,6 +1,7 @@
 #pragma once
 
 #include "stdafx.h"
+#include "Types.h"
 
 class TransportUtils
 {
