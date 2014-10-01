@@ -17,12 +17,13 @@ private:
 	Context *context;
 	UdpSocket *socket;
 	Apipa *pApipa;
-	QList<Agent*> agentsList;
-	QList<PPEER_INFO> clients;
+	QHash<int, Agent*> agentsList;
+	QHash<int, PPEER_INFO> clients;
 	PPEER_INFO host;
 	quint32 secret;
+	QHostAddress localAddress;
 public:
-	void CreateHostAgent();
+	void CreateHostAgent(int agentID);
 	void CreateClientAgent();
 public slots:
 	void readyReadFromAgent(int);

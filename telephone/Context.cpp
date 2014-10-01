@@ -45,3 +45,15 @@ bool Context::AGENTDequeue(PNET_MSG *pNetMsg, int agentID)
 	*pNetMsg = pAgents->AgentsList.at(agentID)->ToA.dequeue();
 	return !(pAgents->AgentsList.at(agentID)->ToA.isEmpty());
 }
+void Context::setSample(PNET_HEADER pSample)
+{
+	CPYHeader(&sample, pSample);
+}
+void Context::getSample(PNET_HEADER *ppSample)
+{
+	*ppSample = &sample;
+}
+PNET_HEADER Context::getSample()
+{
+	return &sample;
+}

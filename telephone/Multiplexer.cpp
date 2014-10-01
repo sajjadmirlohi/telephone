@@ -10,7 +10,8 @@ QObject(parent)
 	pApipa = new Apipa();
 	pApipa->init();
 
-	PEER_INFO peer_info = { pApipa->getLocalAddress(), TUNNEL_PORT };
+	localAddress = pApipa->getLocalAddress();
+	PEER_INFO peer_info = { localAddress, TUNNEL_PORT };
 
 	socket = new UdpSocket(NULL, NULL, &peer_info, this);
 	connect(socket, SIGNAL(readyRead()), this, SLOT(readyRead()));
@@ -19,7 +20,7 @@ QObject(parent)
 	{
 		for (quint8 i = 0; i < ADDRESS_POOL_MAX; i++)
 		{
-			clients.append(NULL);
+			clients.insert(-1, NULL);
 		}
 	}
 	else
@@ -38,15 +39,15 @@ Multiplexer::~Multiplexer()
 	delete context;
 }
 
-void Multiplexer::CreateHostAgent()
+void Multiplexer::CreateHostAgent(int agentID)
 {
-	Agent *pAgent = new Agent(context, 0, this);
-	agentsList.append(pAgent);
+	Agent *pAgent = new Agent(context, agentID, localAddress, pApipa->getNewAddress(), this);
+	agentsList.insert(agentID, pAgent);
 }
 void Multiplexer::CreateClientAgent()
 {
-	Agent *pAgent = new Agent(context, 0, this);
-	agentsList.append(pAgent);
+	Agent *pAgent = new Agent(context, 0, localAddress, pApipa->getNewAddress(), this);
+	agentsList.insert(0, pAgent);
 }
 
 void Multiplexer::readyReadFromAgent(int forAgentID)
