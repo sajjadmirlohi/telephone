@@ -6,7 +6,6 @@
 #include "UdpSocket.h"
 #include "Apipa.h"
 #include "qtimer.h"
-#include "qthread.h"
 
 class Multiplexer :
 	public QObject
@@ -32,7 +31,6 @@ private:
 	QStringList udpPortsList;
 	QStringList tcpPortsList;
 	AgentKind agentKind;
-	QThread timersThread;
 public:
 	void CreateHostAgent(int agentID);
 	void CreateClientAgent();
